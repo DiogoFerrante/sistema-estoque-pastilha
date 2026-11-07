@@ -1,0 +1,91 @@
+[
+    {
+        "id": "3ae8955a62be5224",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "b8025893ccef08a9",
+        "type": "mysql",
+        "z": "3ae8955a62be5224",
+        "mydb": "fd68eb7c44d00a5b",
+        "name": "Banco",
+        "x": 390,
+        "y": 320,
+        "wires": [
+            [
+                "44d52e517b9c5cc6"
+            ]
+        ]
+    },
+    {
+        "id": "172cde2cdae89993",
+        "type": "function",
+        "z": "3ae8955a62be5224",
+        "name": "function 1",
+        "func": "msg.topic = \"SELECT * FROM pastilhas\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 240,
+        "y": 320,
+        "wires": [
+            [
+                "b8025893ccef08a9"
+            ]
+        ]
+    },
+    {
+        "id": "5fe7db9d0322e055",
+        "type": "http in",
+        "z": "3ae8955a62be5224",
+        "name": "",
+        "url": "/pastilhas",
+        "method": "get",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 70,
+        "y": 320,
+        "wires": [
+            [
+                "172cde2cdae89993"
+            ]
+        ]
+    },
+    {
+        "id": "44d52e517b9c5cc6",
+        "type": "http response",
+        "z": "3ae8955a62be5224",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 430,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "fd68eb7c44d00a5b",
+        "type": "MySQLdatabase",
+        "name": "",
+        "host": "localhost",
+        "port": "3306",
+        "db": "sistema_estoque_pastilhas",
+        "tz": "",
+        "charset": "UTF8"
+    },
+    {
+        "id": "1359147ef21e1b55",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-node-mysql": "3.0.3"
+        }
+    }
+]

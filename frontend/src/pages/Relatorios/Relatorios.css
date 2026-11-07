@@ -1,0 +1,272 @@
+/* PÁGINA DE RELATÓRIOS */
+
+.relatorios {
+    width: 100%;
+    padding: 30px;
+    color: #1e293b;
+}
+
+/* CABEÇALHO */
+
+.relatorios-cabecalho {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.relatorios-etiqueta {
+    display: block;
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    margin-bottom: 10px;
+}
+
+.relatorios-cabecalho h1 {
+    margin: 0 0 10px;
+    color: #172554;
+    font-size: 32px;
+}
+
+.relatorios-cabecalho p {
+    margin: 0;
+    color: #64748b;
+    font-size: 16px;
+}
+
+/* INDICADORES */
+
+.relatorios-indicadores {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.relatorio-card {
+    padding: 25px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.04);
+}
+
+.relatorio-card span {
+    color: #64748b;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.relatorio-card strong {
+    color: #172554;
+    font-size: 34px;
+}
+
+.relatorio-card-entrada {
+    border-bottom: 4px solid #22c55e;
+}
+
+.relatorio-card-entrada strong {
+    color: #15803d;
+}
+
+.relatorio-card-saida {
+    border-bottom: 4px solid #ef4444;
+}
+
+.relatorio-card-saida strong {
+    color: #dc2626;
+}
+
+/* CONTEÚDO */
+
+.relatorios-conteudo {
+    padding: 28px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.04);
+}
+
+/* FILTROS */
+
+.relatorios-filtros {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    margin-bottom: 28px;
+}
+
+.relatorios-filtros div {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.relatorios-filtros label {
+    color: #334155;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.relatorios-filtros input,
+.relatorios-filtros select {
+    width: 100%;
+    padding: 15px;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    color: #1e293b;
+    font-size: 15px;
+    outline: none;
+    transition: 0.2s;
+}
+
+.relatorios-filtros input:focus,
+.relatorios-filtros select:focus {
+    border-color: #3b82f6;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.relatorios-filtros input::placeholder {
+    color: #94a3b8;
+}
+
+/* TABELA */
+
+.relatorios-tabela-container {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+}
+
+.relatorios-tabela {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+.relatorios-tabela thead {
+    background: #eff6ff;
+}
+
+.relatorios-tabela th {
+    padding: 17px 14px;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.relatorios-tabela td {
+    padding: 17px 14px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #475569;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.relatorios-tabela tbody tr {
+    transition: background 0.2s;
+}
+
+.relatorios-tabela tbody tr:hover {
+    background: #f8fafc;
+}
+
+.relatorios-tabela tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.relatorio-codigo {
+    color: #1d4ed8 !important;
+    font-weight: 700;
+}
+
+/* TIPOS DE MOVIMENTAÇÃO */
+
+.relatorio-tipo {
+    display: inline-block;
+    padding: 7px 13px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.relatorio-tipo.entrada {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.relatorio-tipo.saida {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+/* MENSAGENS */
+
+.relatorios-vazio {
+    padding: 40px !important;
+    color: #64748b !important;
+    text-align: center;
+    font-size: 15px !important;
+}
+
+.relatorios-erro {
+    padding: 15px;
+    margin-bottom: 20px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 9px;
+    color: #b91c1c;
+    font-size: 15px;
+}
+
+/* RODAPÉ */
+
+.relatorios-rodape {
+    padding-top: 20px;
+    color: #64748b;
+    font-size: 14px;
+    text-align: right;
+}
+
+/* RESPONSIVIDADE */
+
+@media (max-width: 768px) {
+    .relatorios {
+        padding: 15px;
+    }
+
+    .relatorios-indicadores {
+        grid-template-columns: 1fr;
+    }
+
+    .relatorios-filtros {
+        grid-template-columns: 1fr;
+    }
+
+    .relatorios-conteudo {
+        padding: 15px;
+    }
+
+    .relatorios-cabecalho h1 {
+        font-size: 25px;
+    }
+
+    .relatorios-tabela th,
+    .relatorios-tabela td {
+        padding: 13px 10px;
+    }
+}
