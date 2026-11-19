@@ -13,11 +13,11 @@
         "z": "3ae8955a62be5224",
         "mydb": "fd68eb7c44d00a5b",
         "name": "Banco",
-        "x": 390,
-        "y": 320,
+        "x": 450,
+        "y": 580,
         "wires": [
             [
-                "44d52e517b9c5cc6"
+                "debd020c6dfd5969"
             ]
         ]
     },
@@ -26,15 +26,15 @@
         "type": "function",
         "z": "3ae8955a62be5224",
         "name": "function 1",
-        "func": "msg.topic = \"SELECT * FROM pastilhas\";\nreturn msg;",
+        "func": "msg.topic = `\n    SELECT \n        p.id_pastilha,\n        p.codigo,\n        p.modelo,\n        p.codigo_barras,\n        p.estoque_minimo,\n        e.quantidade_atual\n    FROM pastilhas p\n    INNER JOIN estoque e \n        ON p.id_pastilha = e.id_pastilha\n`;\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 240,
-        "y": 320,
+        "x": 300,
+        "y": 580,
         "wires": [
             [
                 "b8025893ccef08a9"
@@ -51,8 +51,8 @@
         "upload": false,
         "skipBodyParsing": false,
         "swaggerDoc": "",
-        "x": 70,
-        "y": 320,
+        "x": 130,
+        "y": 580,
         "wires": [
             [
                 "172cde2cdae89993"
@@ -66,8 +66,1072 @@
         "name": "",
         "statusCode": "",
         "headers": {},
-        "x": 430,
-        "y": 300,
+        "x": 750,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "debd020c6dfd5969",
+        "type": "function",
+        "z": "3ae8955a62be5224",
+        "name": "function 2",
+        "func": "msg.headers = {\n    \"Access-Control-Allow-Origin\": \"*\"\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 600,
+        "y": 580,
+        "wires": [
+            [
+                "44d52e517b9c5cc6"
+            ]
+        ]
+    },
+    {
+        "id": "45a66f2b4d709df7",
+        "type": "http in",
+        "z": "3ae8955a62be5224",
+        "name": "",
+        "url": "/entrada",
+        "method": "post",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 130,
+        "y": 500,
+        "wires": [
+            [
+                "153114793e146126"
+            ]
+        ]
+    },
+    {
+        "id": "153114793e146126",
+        "type": "function",
+        "z": "3ae8955a62be5224",
+        "name": "function 3",
+        "func": "let dados = msg.payload;\n\nif (typeof dados === \"string\") {\n    dados = JSON.parse(dados);\n}\n\nconst idPastilha = Number(dados.id_pastilha);\nconst quantidade = Number(dados.quantidade);\nconst idUsuario = Number(dados.id_usuario);\n\n// Validar os dados recebidos\nif (\n    !Number.isInteger(idPastilha) ||\n    idPastilha <= 0 ||\n    !Number.isInteger(quantidade) ||\n    quantidade <= 0 ||\n    !Number.isInteger(idUsuario) ||\n    idUsuario <= 0\n) {\n    msg.statusCode = 400;\n    msg.payload = {\n        sucesso: false,\n        mensagem: \"Dados inválidos para registrar a entrada.\"\n    };\n\n    return [null, msg];\n}\n\n// Guardar os dados para a próxima etapa\nmsg.idPastilha = idPastilha;\nmsg.quantidade = quantidade;\nmsg.idUsuario = idUsuario;\n\n// Atualizar estoque usando parâmetros\nmsg.topic = `\n    UPDATE estoque\n    SET quantidade_atual = quantidade_atual + ?\n    WHERE id_pastilha = ?\n`;\n\nmsg.payload = [quantidade, idPastilha];\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 300,
+        "y": 500,
+        "wires": [
+            [
+                "d5dc3023deb8baf3"
+            ]
+        ]
+    },
+    {
+        "id": "d5dc3023deb8baf3",
+        "type": "mysql",
+        "z": "3ae8955a62be5224",
+        "mydb": "ab591c25c705567d",
+        "name": "Banco",
+        "x": 450,
+        "y": 500,
+        "wires": [
+            [
+                "b7c626742e17c0fd"
+            ]
+        ]
+    },
+    {
+        "id": "edabaef2a81592ef",
+        "type": "http response",
+        "z": "3ae8955a62be5224",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 890,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "b7c626742e17c0fd",
+        "type": "function",
+        "z": "3ae8955a62be5224",
+        "name": "function 4",
+        "func": "msg.topic = `\n    INSERT INTO movimentacoes\n    (id_pastilha, id_usuario, tipo, quantidade)\n    VALUES (?, ?, 'ENTRADA', ?)\n`;\n\nmsg.payload = [\n    msg.idPastilha,\n    msg.idUsuario,\n    msg.quantidade\n];\n\nmsg.headers = {\n    \"Access-Control-Allow-Origin\": \"*\"\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 600,
+        "y": 500,
+        "wires": [
+            [
+                "8ed05d581fb1c606"
+            ]
+        ]
+    },
+    {
+        "id": "8ed05d581fb1c606",
+        "type": "mysql",
+        "z": "3ae8955a62be5224",
+        "mydb": "5222887eae24feaf",
+        "name": "Banco",
+        "x": 750,
+        "y": 500,
+        "wires": [
+            [
+                "edabaef2a81592ef"
+            ]
+        ]
+    },
+    {
+        "id": "5e8913e0ebf48eae",
+        "type": "http in",
+        "z": "3ae8955a62be5224",
+        "name": "",
+        "url": "/saida",
+        "method": "post",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 130,
+        "y": 660,
+        "wires": [
+            [
+                "e2b002a33b20ead1"
+            ]
+        ]
+    },
+    {
+        "id": "e2b002a33b20ead1",
+        "type": "function",
+        "z": "3ae8955a62be5224",
+        "name": "function 5",
+        "func": "let dados = msg.payload;\n\nif (typeof dados === \"string\") {\n    dados = JSON.parse(dados);\n}\n\nconst idPastilha = Number(dados.id_pastilha);\nconst quantidade = Number(dados.quantidade);\nconst idUsuario = Number(dados.id_usuario);\n\n// Validar os dados recebidos\nif (\n    !Number.isInteger(idPastilha) ||\n    idPastilha <= 0 ||\n    !Number.isInteger(quantidade) ||\n    quantidade <= 0 ||\n    !Number.isInteger(idUsuario) ||\n    idUsuario <= 0\n) {\n    msg.statusCode = 400;\n\n    msg.payload = {\n        sucesso: false,\n        mensagem: \"Dados inválidos para registrar a saída.\"\n    };\n\n    msg.headers = {\n        \"Access-Control-Allow-Origin\": \"*\",\n        \"Content-Type\": \"application/json\"\n    };\n\n    return [null, msg];\n}\n\n// Guardar os dados para as próximas etapas\nmsg.idPastilha = idPastilha;\nmsg.quantidade = quantidade;\nmsg.idUsuario = idUsuario;\n\n// Atualizar estoque somente se houver quantidade suficiente\nmsg.topic = `\n    UPDATE estoque\n    SET quantidade_atual = quantidade_atual - ?\n    WHERE id_pastilha = ?\n    AND quantidade_atual >= ?\n`;\n\nmsg.payload = [\n    quantidade,\n    idPastilha,\n    quantidade\n];\n\nreturn [msg, null];",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 300,
+        "y": 660,
+        "wires": [
+            [
+                "bb59df4917820c6a"
+            ]
+        ]
+    },
+    {
+        "id": "bb59df4917820c6a",
+        "type": "mysql",
+        "z": "3ae8955a62be5224",
+        "mydb": "4b594e41da35ba36",
+        "name": "Banco",
+        "x": 450,
+        "y": 660,
+        "wires": [
+            [
+                "f427e917f424c10b"
+            ]
+        ]
+    },
+    {
+        "id": "f427e917f424c10b",
+        "type": "function",
+        "z": "3ae8955a62be5224",
+        "name": "function 6",
+        "func": "const resultado = msg.payload;\n\n// Verifica se o estoque foi atualizado\nif (!resultado || resultado.affectedRows === 0) {\n\n    msg.statusCode = 400;\n\n    msg.payload = {\n        sucesso: false,\n        mensagem: \"Estoque insuficiente! Não foi possível realizar a saída.\"\n    };\n\n    msg.headers = {\n        \"Access-Control-Allow-Origin\": \"*\",\n        \"Content-Type\": \"application/json\"\n    };\n\n    return [null, msg];\n}\n\n// Registrar a movimentação com o usuário correto\nmsg.topic = `\n    INSERT INTO movimentacoes\n    (id_pastilha, id_usuario, tipo, quantidade)\n    VALUES (?, ?, 'SAIDA', ?)\n`;\n\nmsg.payload = [\n    msg.idPastilha,\n    msg.idUsuario,\n    msg.quantidade\n];\n\nmsg.headers = {\n    \"Access-Control-Allow-Origin\": \"*\",\n    \"Content-Type\": \"application/json\"\n};\n\nreturn [msg, null];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 600,
+        "y": 660,
+        "wires": [
+            [
+                "d50bd266b0ed19da"
+            ],
+            [
+                "49e14e2140749344"
+            ]
+        ]
+    },
+    {
+        "id": "d50bd266b0ed19da",
+        "type": "mysql",
+        "z": "3ae8955a62be5224",
+        "mydb": "06ceaf50ed297c57",
+        "name": "Banco",
+        "x": 750,
+        "y": 660,
+        "wires": [
+            [
+                "98e03a8d6ac2147b"
+            ]
+        ]
+    },
+    {
+        "id": "98e03a8d6ac2147b",
+        "type": "http response",
+        "z": "3ae8955a62be5224",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 890,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "fb5038444b129107",
+        "type": "http in",
+        "z": "3ae8955a62be5224",
+        "name": "",
+        "url": "/movimentacoes",
+        "method": "get",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 160,
+        "y": 820,
+        "wires": [
+            [
+                "083daa3dda0a499b"
+            ]
+        ]
+    },
+    {
+        "id": "083daa3dda0a499b",
+        "type": "function",
+        "z": "3ae8955a62be5224",
+        "name": "function 7",
+        "func": "msg.topic = `\n    SELECT\n        m.id_movimentacao,\n        p.codigo,\n        p.modelo,\n        m.tipo,\n        m.quantidade,\n        m.data_hora,\n        u.nome AS usuario\n    FROM movimentacoes m\n    INNER JOIN pastilhas p\n        ON m.id_pastilha = p.id_pastilha\n    INNER JOIN usuarios u\n        ON m.id_usuario = u.id_usuario\n    ORDER BY m.data_hora DESC\n`;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [
+            {
+                "var": "bcrypt",
+                "module": "bcryptjs"
+            }
+        ],
+        "x": 360,
+        "y": 820,
+        "wires": [
+            [
+                "2640b26ab6568525"
+            ]
+        ]
+    },
+    {
+        "id": "2640b26ab6568525",
+        "type": "mysql",
+        "z": "3ae8955a62be5224",
+        "mydb": "4b594e41da35ba36",
+        "name": "Banco",
+        "x": 510,
+        "y": 820,
+        "wires": [
+            [
+                "c3a5ec5d11ba0236"
+            ]
+        ]
+    },
+    {
+        "id": "c3a5ec5d11ba0236",
+        "type": "function",
+        "z": "3ae8955a62be5224",
+        "name": "function 8",
+        "func": "msg.headers = {\n    \"Access-Control-Allow-Origin\": \"*\"\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 820,
+        "wires": [
+            [
+                "7732724a473a3f20"
+            ]
+        ]
+    },
+    {
+        "id": "7732724a473a3f20",
+        "type": "http response",
+        "z": "3ae8955a62be5224",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 810,
+        "y": 820,
+        "wires": []
+    },
+    {
+        "id": "0eb5a4a6a233bc56",
+        "type": "http in",
+        "z": "3ae8955a62be5224",
+        "name": "",
+        "url": "/dashboard",
+        "method": "get",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 140,
+        "y": 900,
+        "wires": [
+            [
+                "40455ebd76b65a67"
+            ]
+        ]
+    },
+    {
+        "id": "40455ebd76b65a67",
+        "type": "function",
+        "z": "3ae8955a62be5224",
+        "name": "function 9",
+        "func": "msg.topic = `\n    SELECT\n        COUNT(*) AS total_pastilhas,\n        SUM(CASE\n            WHEN e.quantidade_atual <= p.estoque_minimo\n            THEN 1\n            ELSE 0\n        END) AS estoque_critico,\n        (\n            SELECT COUNT(*)\n            FROM movimentacoes\n        ) AS total_movimentacoes\n    FROM pastilhas p\n    INNER JOIN estoque e\n        ON p.id_pastilha = e.id_pastilha\n`;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 900,
+        "wires": [
+            [
+                "125254fa9bb2aaf3"
+            ]
+        ]
+    },
+    {
+        "id": "125254fa9bb2aaf3",
+        "type": "mysql",
+        "z": "3ae8955a62be5224",
+        "mydb": "4b594e41da35ba36",
+        "name": "Banco",
+        "x": 490,
+        "y": 900,
+        "wires": [
+            [
+                "dde12f3977246622"
+            ]
+        ]
+    },
+    {
+        "id": "dde12f3977246622",
+        "type": "function",
+        "z": "3ae8955a62be5224",
+        "name": "function 10",
+        "func": "msg.headers = {\n    \"Access-Control-Allow-Origin\": \"*\"\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 670,
+        "y": 900,
+        "wires": [
+            [
+                "1a3cf10dcde41918"
+            ]
+        ]
+    },
+    {
+        "id": "1a3cf10dcde41918",
+        "type": "http response",
+        "z": "3ae8955a62be5224",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 850,
+        "y": 900,
+        "wires": []
+    },
+    {
+        "id": "49e14e2140749344",
+        "type": "http response",
+        "z": "3ae8955a62be5224",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 750,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "c013000000000001",
+        "type": "http in",
+        "z": "3ae8955a62be5224",
+        "name": "",
+        "url": "/pastilhas",
+        "method": "post",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 140,
+        "y": 1000,
+        "wires": [
+            [
+                "c013000000000002"
+            ]
+        ]
+    },
+    {
+        "id": "c013000000000002",
+        "type": "function",
+        "z": "3ae8955a62be5224",
+        "name": "Preparar cadastro",
+        "func": "let dados = msg.payload;\n\ntry {\n    if (typeof dados === \"string\") {\n        dados = JSON.parse(dados);\n    }\n\n    const codigo = String(dados.codigo || \"\").trim();\n    const modelo = String(dados.modelo || \"\").trim();\n    const codigoBarras = String(dados.codigo_barras || \"\").trim();\n    const idFabricante = Number(dados.id_fabricante);\n    const idFornecedor = Number(dados.id_fornecedor);\n    const estoqueMinimo = Number(dados.estoque_minimo);\n    const quantidadeInicial = Number(dados.quantidade_inicial);\n    const localizacao = String(dados.localizacao || \"Almoxarifado\").trim();\n    const descricao = String(dados.descricao || \"\");\n\n    if (!codigo || !modelo || !codigoBarras ||\n        !Number.isInteger(idFabricante) || idFabricante <= 0 ||\n        !Number.isInteger(idFornecedor) || idFornecedor <= 0 ||\n        !Number.isInteger(estoqueMinimo) || estoqueMinimo < 0 ||\n        !Number.isInteger(quantidadeInicial) || quantidadeInicial < 0) {\n        throw new Error(\"Preencha os campos obrigatórios corretamente.\");\n    }\n\n    msg.quantidadeInicial = quantidadeInicial;\n    msg.localizacao = localizacao;\n\n    msg.topic = \"INSERT INTO pastilhas (codigo, codigo_barras, modelo, descricao, id_fabricante, id_fornecedor, estoque_minimo) VALUES (?, ?, ?, ?, ?, ?, ?)\";\n    msg.payload = [codigo, codigoBarras, modelo, descricao, idFabricante, idFornecedor, estoqueMinimo];\n\n    return [msg, null];\n\n} catch (erro) {\n    msg.statusCode = 400;\n    msg.payload = { sucesso: false, mensagem: erro.message };\n    return [null, msg];\n}",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 350,
+        "y": 1000,
+        "wires": [
+            [
+                "c013000000000003"
+            ],
+            [
+                "c013000000000009"
+            ]
+        ]
+    },
+    {
+        "id": "c013000000000003",
+        "type": "mysql",
+        "z": "3ae8955a62be5224",
+        "mydb": "4b594e41da35ba36",
+        "name": "cad past",
+        "x": 530,
+        "y": 960,
+        "wires": [
+            [
+                "c013000000000004",
+                "46a4a0fca176a3c1"
+            ]
+        ]
+    },
+    {
+        "id": "c013000000000004",
+        "type": "function",
+        "z": "3ae8955a62be5224",
+        "name": "Preparar estoque inicial",
+        "func": "const resultado = msg.payload;\nconst idPastilha = resultado && resultado.insertId;\n\nif (!idPastilha) {\n    throw new Error(\"Não foi possível obter o ID da pastilha.\");\n}\n\nmsg.topic = \"INSERT INTO estoque (id_pastilha, quantidade_atual, localizacao) VALUES (?, ?, ?)\";\nmsg.payload = [idPastilha, msg.quantidadeInicial, msg.localizacao];\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 710,
+        "y": 960,
+        "wires": [
+            [
+                "c013000000000005"
+            ]
+        ]
+    },
+    {
+        "id": "c013000000000005",
+        "type": "mysql",
+        "z": "3ae8955a62be5224",
+        "mydb": "4b594e41da35ba36",
+        "name": "cad ei",
+        "x": 890,
+        "y": 960,
+        "wires": [
+            [
+                "c013000000000006"
+            ]
+        ]
+    },
+    {
+        "id": "c013000000000006",
+        "type": "function",
+        "z": "3ae8955a62be5224",
+        "name": "Resposta de sucesso",
+        "func": "msg.statusCode = 201;\nmsg.headers = {\n    \"Access-Control-Allow-Origin\": \"*\",\n    \"Content-Type\": \"application/json\"\n};\nmsg.payload = {\n    sucesso: true,\n    mensagem: \"Pastilha cadastrada com sucesso!\"\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1080,
+        "y": 960,
+        "wires": [
+            [
+                "c013000000000007"
+            ]
+        ]
+    },
+    {
+        "id": "c013000000000007",
+        "type": "http response",
+        "z": "3ae8955a62be5224",
+        "name": "Resposta de sucesso",
+        "statusCode": "",
+        "headers": {},
+        "x": 1340,
+        "y": 960,
+        "wires": []
+    },
+    {
+        "id": "c013000000000008",
+        "type": "http response",
+        "z": "3ae8955a62be5224",
+        "name": "Resposta de erro",
+        "statusCode": "",
+        "headers": {},
+        "x": 830,
+        "y": 1040,
+        "wires": []
+    },
+    {
+        "id": "c013000000000009",
+        "type": "function",
+        "z": "3ae8955a62be5224",
+        "name": "Preparar resposta de erro",
+        "func": "msg.headers = {\n    \"Access-Control-Allow-Origin\": \"*\",\n    \"Content-Type\": \"application/json\"\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 590,
+        "y": 1040,
+        "wires": [
+            [
+                "c013000000000008"
+            ]
+        ]
+    },
+    {
+        "id": "46a4a0fca176a3c1",
+        "type": "debug",
+        "z": "3ae8955a62be5224",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 520,
+        "y": 1140,
+        "wires": []
+    },
+    {
+        "id": "bfdaa95324eee9d9",
+        "type": "catch",
+        "z": "3ae8955a62be5224",
+        "name": "",
+        "scope": [
+            "c013000000000005",
+            "c013000000000003"
+        ],
+        "uncaught": false,
+        "x": 730,
+        "y": 1120,
+        "wires": [
+            [
+                "39881740c39d10fa"
+            ]
+        ]
+    },
+    {
+        "id": "39881740c39d10fa",
+        "type": "function",
+        "z": "3ae8955a62be5224",
+        "name": "tratar erro cadastro",
+        "func": "msg.statusCode = 400;\n\nlet mensagem = \"Não foi possível cadastrar a pastilha.\";\n\nif (msg.error && msg.error.code === \"ER_DUP_ENTRY\") {\n    mensagem = \"Este código ou código de barras já está cadastrado.\";\n}\n\nmsg.headers = {\n    \"Access-Control-Allow-Origin\": \"*\",\n    \"Content-Type\": \"application/json\"\n};\n\nmsg.payload = {\n    sucesso: false,\n    mensagem: mensagem\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 910,
+        "y": 1120,
+        "wires": [
+            [
+                "c013000000000008"
+            ]
+        ]
+    },
+    {
+        "id": "d3a1000000000001",
+        "type": "http in",
+        "z": "3ae8955a62be5224",
+        "name": "Excluir pastilha",
+        "url": "/pastilhas/:id",
+        "method": "delete",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 140,
+        "y": 1300,
+        "wires": [
+            [
+                "d3a1000000000002"
+            ]
+        ]
+    },
+    {
+        "id": "d3a1000000000002",
+        "type": "function",
+        "z": "3ae8955a62be5224",
+        "name": "Preparar exclusão segura",
+        "func": "const idPastilha = Number(msg.req && msg.req.params && msg.req.params.id);\n\nmsg.headers = {\n    \"Access-Control-Allow-Origin\": \"*\",\n    \"Content-Type\": \"application/json\"\n};\n\nif (!Number.isInteger(idPastilha) || idPastilha <= 0) {\n    msg.statusCode = 400;\n    msg.payload = {\n        sucesso: false,\n        mensagem: \"ID da pastilha inválido.\"\n    };\n    return [null, msg];\n}\n\nmsg.topic = `\n    DELETE p, e\n    FROM pastilhas p\n    INNER JOIN estoque e ON e.id_pastilha = p.id_pastilha\n    WHERE p.id_pastilha = ?\n      AND NOT EXISTS (\n          SELECT 1\n          FROM movimentacoes m\n          WHERE m.id_pastilha = p.id_pastilha\n      )\n`;\n\nmsg.payload = [idPastilha];\nreturn [msg, null];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 1300,
+        "wires": [
+            [
+                "d3a1000000000003"
+            ],
+            [
+                "d3a1000000000005"
+            ]
+        ]
+    },
+    {
+        "id": "d3a1000000000003",
+        "type": "mysql",
+        "z": "3ae8955a62be5224",
+        "mydb": "4b594e41da35ba36",
+        "name": "Banco",
+        "x": 650,
+        "y": 1260,
+        "wires": [
+            [
+                "d3a1000000000004"
+            ]
+        ]
+    },
+    {
+        "id": "d3a1000000000004",
+        "type": "function",
+        "z": "3ae8955a62be5224",
+        "name": "Resultado da exclusão",
+        "func": "const resultado = msg.payload;\nconst removidos = resultado && Number(resultado.affectedRows || 0);\n\nmsg.headers = {\n    \"Access-Control-Allow-Origin\": \"*\",\n    \"Content-Type\": \"application/json\"\n};\n\nif (removidos > 0) {\n    msg.statusCode = 200;\n    msg.payload = {\n        sucesso: true,\n        mensagem: \"Pastilha excluída com sucesso.\"\n    };\n} else {\n    msg.statusCode = 409;\n    msg.payload = {\n        sucesso: false,\n        mensagem: \"A pastilha não foi encontrada ou possui movimentações registradas. O histórico foi preservado.\"\n    };\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 880,
+        "y": 1260,
+        "wires": [
+            [
+                "d3a1000000000005"
+            ]
+        ]
+    },
+    {
+        "id": "d3a1000000000005",
+        "type": "http response",
+        "z": "3ae8955a62be5224",
+        "name": "Resposta exclusão",
+        "statusCode": "",
+        "headers": {},
+        "x": 1130,
+        "y": 1300,
+        "wires": []
+    },
+    {
+        "id": "d3a1000000000006",
+        "type": "http in",
+        "z": "3ae8955a62be5224",
+        "name": "Permitir OPTIONS exclusão",
+        "url": "/pastilhas/:id",
+        "method": "options",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 160,
+        "y": 1420,
+        "wires": [
+            [
+                "d3a1000000000007"
+            ]
+        ]
+    },
+    {
+        "id": "d3a1000000000007",
+        "type": "function",
+        "z": "3ae8955a62be5224",
+        "name": "Resposta CORS",
+        "func": "msg.statusCode = 204;\nmsg.headers = {\n    \"Access-Control-Allow-Origin\": \"*\",\n    \"Access-Control-Allow-Methods\": \"GET, POST, DELETE, OPTIONS\",\n    \"Access-Control-Allow-Headers\": \"Content-Type\"\n};\nmsg.payload = \"\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 420,
+        "y": 1420,
+        "wires": [
+            [
+                "d3a1000000000008"
+            ]
+        ]
+    },
+    {
+        "id": "d3a1000000000008",
+        "type": "http response",
+        "z": "3ae8955a62be5224",
+        "name": "Resposta OPTIONS",
+        "statusCode": "",
+        "headers": {},
+        "x": 680,
+        "y": 1420,
+        "wires": []
+    },
+    {
+        "id": "a100000000000001",
+        "type": "http in",
+        "z": "3ae8955a62be5224",
+        "name": "Cadastrar usuário",
+        "url": "/usuarios",
+        "method": "post",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 130,
+        "y": 1620,
+        "wires": [
+            [
+                "a100000000000002"
+            ]
+        ]
+    },
+    {
+        "id": "a100000000000002",
+        "type": "function",
+        "z": "3ae8955a62be5224",
+        "name": "Validar e proteger senha",
+        "func": "try {\n    let dados = msg.payload;\n    if (typeof dados === \"string\") dados = JSON.parse(dados);\n\n    const nome = String(dados.nome || \"\").trim();\n    const email = String(dados.email || \"\").trim().toLowerCase();\n    const senha = String(dados.senha || \"\");\n\n    if (!nome || nome.length > 100) {\n        throw new Error(\"Informe um nome válido.\");\n    }\n    if (!email || email.length > 100 || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {\n        throw new Error(\"Informe um e-mail válido.\");\n    }\n    if (senha.length < 8) {\n        throw new Error(\"A senha deve possuir pelo menos 8 caracteres.\");\n    }\n    if (senha.length > 72) {\n        throw new Error(\"A senha deve possuir no máximo 72 caracteres.\");\n    }\n\n    const hash = bcrypt.hashSync(senha, 12);\n\n    msg.topic = \"INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)\";\n    msg.payload = [nome, email, hash];\n    return [msg, null];\n\n} catch (erro) {\n    msg.statusCode = 400;\n    msg.payload = { sucesso: false, mensagem: erro.message };\n    return [null, msg];\n}",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [
+            {
+                "var": "bcrypt",
+                "module": "bcryptjs"
+            }
+        ],
+        "x": 370,
+        "y": 1620,
+        "wires": [
+            [
+                "a100000000000003"
+            ],
+            [
+                "a100000000000005"
+            ]
+        ]
+    },
+    {
+        "id": "a100000000000003",
+        "type": "mysql",
+        "z": "3ae8955a62be5224",
+        "mydb": "4b594e41da35ba36",
+        "name": "Salvar usuário no MySQL",
+        "x": 640,
+        "y": 1580,
+        "wires": [
+            [
+                "a100000000000004"
+            ]
+        ]
+    },
+    {
+        "id": "a100000000000004",
+        "type": "function",
+        "z": "3ae8955a62be5224",
+        "name": "Cadastro realizado",
+        "func": "msg.statusCode = 201;\nmsg.headers = {\n    \"Access-Control-Allow-Origin\": \"*\",\n    \"Content-Type\": \"application/json\"\n};\nmsg.payload = {\n    sucesso: true,\n    mensagem: \"Usuário cadastrado com sucesso!\"\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 890,
+        "y": 1580,
+        "wires": [
+            [
+                "a100000000000005"
+            ]
+        ]
+    },
+    {
+        "id": "a100000000000005",
+        "type": "http response",
+        "z": "3ae8955a62be5224",
+        "name": "Resposta cadastro",
+        "statusCode": "",
+        "headers": {},
+        "x": 1160,
+        "y": 1620,
+        "wires": []
+    },
+    {
+        "id": "a100000000000006",
+        "type": "catch",
+        "z": "3ae8955a62be5224",
+        "name": "Erro ao cadastrar usuário",
+        "scope": [
+            "a100000000000003"
+        ],
+        "uncaught": false,
+        "x": 640,
+        "y": 1700,
+        "wires": [
+            [
+                "a100000000000007"
+            ]
+        ]
+    },
+    {
+        "id": "a100000000000007",
+        "type": "function",
+        "z": "3ae8955a62be5224",
+        "name": "Tratar erro cadastro usuário",
+        "func": "const duplicado = msg.error && msg.error.code === \"ER_DUP_ENTRY\";\nmsg.statusCode = duplicado ? 409 : 500;\nmsg.headers = {\n    \"Access-Control-Allow-Origin\": \"*\",\n    \"Content-Type\": \"application/json\"\n};\nmsg.payload = {\n    sucesso: false,\n    mensagem: duplicado ? \"Este e-mail já está cadastrado.\" : \"Não foi possível cadastrar o usuário.\"\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 910,
+        "y": 1700,
+        "wires": [
+            [
+                "a100000000000005"
+            ]
+        ]
+    },
+    {
+        "id": "a100000000000008",
+        "type": "http in",
+        "z": "3ae8955a62be5224",
+        "name": "Realizar login",
+        "url": "/login",
+        "method": "post",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 130,
+        "y": 1860,
+        "wires": [
+            [
+                "a100000000000009"
+            ]
+        ]
+    },
+    {
+        "id": "a100000000000009",
+        "type": "function",
+        "z": "3ae8955a62be5224",
+        "name": "Preparar consulta login",
+        "func": "try {\n    let dados = msg.payload;\n    if (typeof dados === \"string\") dados = JSON.parse(dados);\n\n    const email = String(dados.email || \"\").trim().toLowerCase();\n    const senha = String(dados.senha || \"\");\n\n    if (!email || !senha) {\n        throw new Error(\"Informe o e-mail e a senha.\");\n    }\n\n    msg.senhaLogin = senha;\n    msg.topic = \"SELECT id_usuario, nome, email, senha FROM usuarios WHERE email = ? LIMIT 1\";\n    msg.payload = [email];\n    return [msg, null];\n\n} catch (erro) {\n    msg.statusCode = 400;\n    msg.payload = { sucesso: false, mensagem: erro.message };\n    return [null, msg];\n}",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 1860,
+        "wires": [
+            [
+                "a100000000000010"
+            ],
+            [
+                "a100000000000012"
+            ]
+        ]
+    },
+    {
+        "id": "a100000000000010",
+        "type": "mysql",
+        "z": "3ae8955a62be5224",
+        "mydb": "4b594e41da35ba36",
+        "name": "Consultar usuário",
+        "x": 640,
+        "y": 1820,
+        "wires": [
+            [
+                "a100000000000011"
+            ]
+        ]
+    },
+    {
+        "id": "a100000000000011",
+        "type": "function",
+        "z": "3ae8955a62be5224",
+        "name": "Verificar senha",
+        "func": "const usuarios = msg.payload;\nconst usuario = Array.isArray(usuarios) ? usuarios[0] : null;\n\nmsg.headers = {\n    \"Access-Control-Allow-Origin\": \"*\",\n    \"Content-Type\": \"application/json\"\n};\n\nif (!usuario || !bcrypt.compareSync(msg.senhaLogin, usuario.senha)) {\n    msg.statusCode = 401;\n    msg.payload = {\n        sucesso: false,\n        mensagem: \"E-mail ou senha incorretos.\"\n    };\n    return msg;\n}\n\nmsg.statusCode = 200;\nmsg.payload = {\n    sucesso: true,\n    mensagem: \"Login realizado com sucesso!\",\n    usuario: {\n        id_usuario: usuario.id_usuario,\n        nome: usuario.nome,\n        email: usuario.email\n    }\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [
+            {
+                "var": "bcrypt",
+                "module": "bcryptjs"
+            }
+        ],
+        "x": 890,
+        "y": 1820,
+        "wires": [
+            [
+                "a100000000000012"
+            ]
+        ]
+    },
+    {
+        "id": "a100000000000012",
+        "type": "http response",
+        "z": "3ae8955a62be5224",
+        "name": "Resposta login",
+        "statusCode": "",
+        "headers": {},
+        "x": 1160,
+        "y": 1860,
+        "wires": []
+    },
+    {
+        "id": "a100000000000013",
+        "type": "catch",
+        "z": "3ae8955a62be5224",
+        "name": "Erro consulta login",
+        "scope": [
+            "a100000000000010"
+        ],
+        "uncaught": false,
+        "x": 640,
+        "y": 1940,
+        "wires": [
+            [
+                "a100000000000014"
+            ]
+        ]
+    },
+    {
+        "id": "a100000000000014",
+        "type": "function",
+        "z": "3ae8955a62be5224",
+        "name": "Tratar erro login",
+        "func": "msg.statusCode = 500;\nmsg.headers = {\n    \"Access-Control-Allow-Origin\": \"*\",\n    \"Content-Type\": \"application/json\"\n};\nmsg.payload = {\n    sucesso: false,\n    mensagem: \"Não foi possível realizar o login. Tente novamente.\"\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 890,
+        "y": 1940,
+        "wires": [
+            [
+                "a100000000000012"
+            ]
+        ]
+    },
+    {
+        "id": "a100000000000015",
+        "type": "http in",
+        "z": "3ae8955a62be5224",
+        "name": "OPTIONS usuários",
+        "url": "/usuarios",
+        "method": "options",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 140,
+        "y": 2060,
+        "wires": [
+            [
+                "a100000000000017"
+            ]
+        ]
+    },
+    {
+        "id": "a100000000000016",
+        "type": "http in",
+        "z": "3ae8955a62be5224",
+        "name": "OPTIONS login",
+        "url": "/login",
+        "method": "options",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 140,
+        "y": 2120,
+        "wires": [
+            [
+                "a100000000000017"
+            ]
+        ]
+    },
+    {
+        "id": "a100000000000017",
+        "type": "function",
+        "z": "3ae8955a62be5224",
+        "name": "Responder CORS autenticação",
+        "func": "msg.statusCode = 204;\nmsg.headers = {\n    \"Access-Control-Allow-Origin\": \"*\",\n    \"Access-Control-Allow-Methods\": \"POST, OPTIONS\",\n    \"Access-Control-Allow-Headers\": \"Content-Type\"\n};\nmsg.payload = \"\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 2090,
+        "wires": [
+            [
+                "a100000000000018"
+            ]
+        ]
+    },
+    {
+        "id": "a100000000000018",
+        "type": "http response",
+        "z": "3ae8955a62be5224",
+        "name": "Resposta OPTIONS autenticação",
+        "statusCode": "",
+        "headers": {},
+        "x": 750,
+        "y": 2090,
         "wires": []
     },
     {
@@ -81,7 +1145,47 @@
         "charset": "UTF8"
     },
     {
-        "id": "1359147ef21e1b55",
+        "id": "ab591c25c705567d",
+        "type": "MySQLdatabase",
+        "name": "",
+        "host": "localhost",
+        "port": "3306",
+        "db": "sistema_estoque_pastilhas",
+        "tz": "",
+        "charset": "UTF8"
+    },
+    {
+        "id": "5222887eae24feaf",
+        "type": "MySQLdatabase",
+        "name": "",
+        "host": "localhost",
+        "port": "3306",
+        "db": "sistema_estoque_pastilhas",
+        "tz": "",
+        "charset": "UTF8"
+    },
+    {
+        "id": "4b594e41da35ba36",
+        "type": "MySQLdatabase",
+        "name": "",
+        "host": "localhost",
+        "port": "3306",
+        "db": "sistema_estoque_pastilhas",
+        "tz": "",
+        "charset": "UTF8"
+    },
+    {
+        "id": "06ceaf50ed297c57",
+        "type": "MySQLdatabase",
+        "name": "",
+        "host": "localhost",
+        "port": "3306",
+        "db": "sistema_estoque_pastilhas",
+        "tz": "",
+        "charset": "UTF8"
+    },
+    {
+        "id": "023b3dc8c3bb3fd8",
         "type": "global-config",
         "env": [],
         "modules": {
