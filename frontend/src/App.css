@@ -1,3 +1,4 @@
+
 /* CONFIGURAÇÕES GERAIS */
 
 * {
@@ -31,7 +32,7 @@ body {
     min-height: 85px;
     background-color: #ffffff;
     color: #172554;
-    padding: 20px 32px;
+    padding: 18px 32px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -39,16 +40,72 @@ body {
     box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
 }
 
-.app-header h2 {
+.app-identidade h2 {
     font-size: 25px;
     font-weight: 700;
     letter-spacing: 0.3px;
     color: #172554;
+    margin-bottom: 5px;
 }
 
-.app-header span {
+.app-identidade span {
     font-size: 14px;
     color: #64748b;
+}
+
+/* USUÁRIO LOGADO */
+
+.app-usuario {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.app-saudacao {
+    font-size: 14px;
+    color: #64748b;
+}
+
+.app-saudacao strong {
+    color: #172554;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+/* BOTÃO SAIR */
+
+.app-botao-sair {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background-color: #fff1f2;
+    color: #be123c;
+    border: 1px solid #fecdd3;
+    border-radius: 9px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.app-botao-sair span {
+    color: inherit;
+    font-size: 19px;
+    line-height: 1;
+}
+
+.app-botao-sair:hover {
+    background-color: #be123c;
+    color: #ffffff;
+    border-color: #be123c;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(190, 18, 60, 0.18);
+}
+
+.app-botao-sair:active {
+    transform: translateY(0);
 }
 
 /* MENU */
@@ -97,8 +154,13 @@ body {
     .app-header {
         flex-direction: column;
         align-items: flex-start;
-        gap: 8px;
+        gap: 18px;
         padding: 20px;
+    }
+
+    .app-usuario {
+        width: 100%;
+        justify-content: space-between;
     }
 
     .app-menu {

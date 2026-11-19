@@ -401,7 +401,12 @@ function Pastilhas() {
                                             >
                                                 {excluindo === pastilha.id_pastilha
                                                     ? "Excluindo..."
-                                                    : "Excluir"}
+                                                    : (
+                                                        <>
+                                                            <span className="icone-excluir">🗑</span>
+                                                            Excluir
+                                                        </>
+                                                    )}
                                             </button>
                                         </td>
                                     </tr>

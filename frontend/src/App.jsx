@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 
 import Dashboard from "./pages/Dashboard/Dashboard";
@@ -14,21 +15,32 @@ function App() {
     const [paginaAtual, setPaginaAtual] = useState("Login");
     const [usuarioLogado, setUsuarioLogado] = useState(null);
 
-    // REALIZAR LOGIN
     function entrarNoSistema(usuario) {
         setUsuarioLogado(usuario);
         setPaginaAtual("Dashboard");
     }
 
-    // SAIR DO SISTEMA
     function sairDoSistema() {
         setUsuarioLogado(null);
         setPaginaAtual("Login");
     }
 
-    // RENDERIZAR PÁGINAS
-    function renderizarPagina() {
+    // Identifica o nome do usuário em diferentes formatos de resposta
+    function obterNomeUsuario() {
+        const usuario = usuarioLogado?.usuario || usuarioLogado;
 
+        return (
+            usuario?.nome ||
+            usuario?.nome_usuario ||
+            usuario?.nome_completo ||
+            usuario?.name ||
+            usuario?.email ||
+            usuarioLogado?.email ||
+            "Usuário"
+        );
+    }
+
+    function renderizarPagina() {
         if (paginaAtual === "Login") {
             return (
                 <Login
@@ -56,7 +68,6 @@ function App() {
         }
 
         switch (paginaAtual) {
-
             case "Dashboard":
                 return <Dashboard />;
 
@@ -83,17 +94,23 @@ function App() {
                 <>
                     <header className="app-header">
 
-                        <div>
+                        <div className="app-identidade">
                             <h2>DDA Metalúrgica</h2>
                             <span>Sistema de Controle de Estoque</span>
                         </div>
 
                         <div className="app-usuario">
-                            <span>
-                                Olá, {usuarioLogado.nome || usuarioLogado.email}
+                            <span className="app-saudacao">
+                                Olá, <strong>{obterNomeUsuario()}</strong>
                             </span>
 
-                            <button onClick={sairDoSistema}>
+                            <button
+                                type="button"
+                                className="app-botao-sair"
+                                onClick={sairDoSistema}
+                                title="Sair do sistema"
+                            >
+                                <span>↪</span>
                                 Sair
                             </button>
                         </div>

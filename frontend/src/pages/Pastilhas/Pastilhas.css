@@ -450,3 +450,44 @@
         width: 100%;
     }
 }
+
+
+/* BOTÃO EXCLUIR */
+
+.pastilhas-botao-excluir {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 105px;
+    padding: 10px 15px;
+    color: #b91c1c;
+    background: #fff1f2;
+    border: 1px solid #fecdd3;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.pastilhas-botao-excluir:hover:not(:disabled) {
+    color: #ffffff;
+    background: #dc2626;
+    border-color: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(220, 38, 38, 0.18);
+}
+
+.pastilhas-botao-excluir:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.pastilhas-botao-excluir:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.icone-excluir {
+    font-size: 15px;
+}
